@@ -3,29 +3,37 @@ package main
 import (
 	"context"
 	"fmt"
+	"os"
 
 	kafka "github.com/segmentio/kafka-go"
 )
 
-func main() {
-	fmt.Println("start consuming ... !!")
-
-	// make a new reader that consumes from topic-A
-	r := kafka.NewReader(kafka.ReaderConfig{
-		Brokers:  []string{"localhost:9092"},
-		GroupID:  "consumer-group-id",
-		Topic:    "topic-A",
+func getKafkaReader(kafkaURL, topic, groupID string) *kafka.Reader {
+	return kafka.NewReader(kafka.ReaderConfig{
+		Brokers:  []string{kafkaURL},
+		GroupID:  groupID,
+		Topic:    topic,
 		MinBytes: 10e3, // 10KB
 		MaxBytes: 10e6, // 10MB
 	})
+}
 
+func main() {
+	// get kafka reader using environment variables.
+	kafkaURL := os.Getenv("kafkaURL")
+	topic := os.Getenv("topic")
+	groupID := os.Getenv("groupID")
+
+	reader := getKafkaReader(kafkaURL, topic, groupID)
+	defer reader.Close()
+
+	fmt.Println("start consuming ... !!")
 	for {
-		m, err := r.ReadMessage(context.Background())
+		m, err := reader.ReadMessage(context.Background())
 		if err != nil {
-			break
+			fmt.Println(err)
 		}
-		fmt.Printf("message at topic/partition/offset %v/%v/%v: %s = %s\n", m.Topic, m.Partition, m.Offset, string(m.Key), string(m.Value))
+		fmt.Printf("message at topic:%v partition:%v offset:%v	%s = %s\n", m.Topic, m.Partition, m.Offset, string(m.Key), string(m.Value))
 	}
 
-	r.Close()
 }

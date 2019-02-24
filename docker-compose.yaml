@@ -1,0 +1,52 @@
+version: '2.3'
+services:
+
+  zookeeper:
+    hostname: zookeeper
+    image: wurstmeister/zookeeper:3.4.6
+    expose:
+    - "2181"
+    ports:
+    - "2181:2181"
+  
+  kafka:
+    image: wurstmeister/kafka
+    env_file:
+    - kafka-variables.env
+    depends_on:
+    - zookeeper
+    ports:
+    - '9092:9092'
+    - '8082:8082'
+    - '8083:8083'
+    healthcheck:
+      test: netstat tuanp | grep 9092 || exit 1
+      interval: 20s
+      timeout: 10s
+      retries: 5
+
+  # docker-compose exec kafka bash
+  # kafka-console-producer.sh --broker-list localhost:9092 --topic topic1
+  # docker-compose exec kafka kafka-console-producer.sh --broker-list localhost:9092 --topic topic1
+  
+  kafka-go:
+    build:
+      context: kafka-go
+    environment:
+      kafkaURL: kafka:9092
+      topic: topic1
+      GroupID: logger-group
+    depends_on:
+      kafka:
+        condition: service_healthy
+  
+  sarama:
+    build:
+      context: sarama
+    environment:
+      kafkaURL: kafka:9092
+    depends_on:
+      kafka:
+        condition: service_healthy
+      
+
