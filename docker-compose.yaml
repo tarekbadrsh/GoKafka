@@ -21,9 +21,9 @@ services:
     - '8083:8083'
     healthcheck:
       test: netstat tuanp | grep 9092 || exit 1
-      interval: 20s
-      timeout: 10s
-      retries: 5
+      interval: 2s
+      timeout: 2s
+      retries: 20
 
   # docker-compose exec kafka bash
   # kafka-console-producer.sh --broker-list localhost:9092 --topic topic1
