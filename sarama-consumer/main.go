@@ -5,12 +5,13 @@ import (
 	"os"
 	"os/signal"
 	"strings"
+	"time"
 
 	"github.com/Shopify/sarama"
 )
 
 func main() {
-
+	time.Sleep(10 * time.Second)
 	config := sarama.NewConfig()
 	config.ClientID = "go-kafka-consumer"
 	config.Consumer.Return.Errors = true
@@ -87,7 +88,7 @@ func consume(topics []string, master sarama.Consumer) (chan *sarama.ConsumerMess
 
 				case msg := <-consumer.Messages():
 					consumers <- msg
-					fmt.Println("Got message on topic ", topic, msg.Value)
+					// fmt.Println("Got message on topic ", topic, msg.Value)
 				}
 			}
 		}(topic, consumer)

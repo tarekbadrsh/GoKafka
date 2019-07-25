@@ -1,4 +1,4 @@
-module github.com/tarekbadrshalaan/GoKafka/sarama
+module github.com/tarekbadrshalaan/GoKafka/sarama-consumer
 
 require (
 	github.com/DataDog/zstd v1.3.5 // indirect

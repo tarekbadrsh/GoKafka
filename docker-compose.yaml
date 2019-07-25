@@ -40,10 +40,21 @@ services:
       kafka:
         condition: service_healthy
   
-  sarama:
+  sarama-consumer:
     build:
-      context: sarama
+      context: sarama-consumer
     environment:
+      kafkaURL: kafka:9092
+    depends_on:
+      kafka:
+        condition: service_healthy
+      
+  
+  sarama-example:
+    build:
+      context: sarama-example
+    environment:
+      topic: topic1
       kafkaURL: kafka:9092
     depends_on:
       kafka:
